@@ -28,7 +28,7 @@ import static java.util.Arrays.asList;
  * where port is some number. The --skip is optional but prevents Frog from wasting
  * time to produce analyses that we don't use.
  */
-public class FrogSocketClient {
+public class FrogSocketClient implements Tagger {
   private final String host;
   private final int port;
 
@@ -38,9 +38,23 @@ public class FrogSocketClient {
 
   private static final XPathContext foliaCtxt = new XPathContext("folia", foliaNS);
 
-  public FrogSocketClient(String host, int port) throws IOException {
+  /**
+   * Construct Frog client. Does not initiate any socket connections; Frog requires
+   * us to open a new connection for every sentence.
+   *
+   * @param host Host name.
+   * @param port Port number.
+   */
+  public FrogSocketClient(String host, int port) {
     this.host = host;
     this.port = port;
+  }
+
+  /**
+   * Construct client for Frog running on localhost.
+   */
+  public FrogSocketClient(int port) {
+    this("localhost", port);
   }
 
   /**
@@ -49,7 +63,7 @@ public class FrogSocketClient {
    * Tokenization is performed by OpenNLP, because letting Frog do it makes it
    * nearly impossible to construct the correct spans.
    */
-  public List<Span> apply(String sentence) throws IOException, ParsingException {
+  public List<Span> apply(String sentence) throws Exception {
     TokenizerModel tokModel = new TokenizerModel(this.getClass().getResourceAsStream("/nl-token.bin"));
     Tokenizer tok = new TokenizerME(tokModel);
     return apply(sentence, asList(tok.tokenizePos(sentence)));
@@ -64,7 +78,8 @@ public class FrogSocketClient {
    * @throws IOException
    * @throws ParsingException
    */
-  public List<Span> apply(String text, List<Span> tokens) throws IOException, ParsingException {
+  @Override
+  public List<Span> apply(String text, List<Span> tokens) throws Exception {
     StringBuilder sb = new StringBuilder();
 
     try (Socket conn = new Socket(host, port)) {

@@ -1,6 +1,5 @@
 package nl.knaw.huygens.pergamon;
 
-import nu.xom.ParsingException;
 import opennlp.tools.util.Span;
 import org.junit.Test;
 
@@ -25,7 +24,7 @@ public class FrogSocketClientTest {
   }
 
   @Test
-  public void testFrog() throws IOException, ParsingException {
+  public void testFrog() throws Exception {
     String text = "Henk staat aan het begin van de zin.";
     int[] bounds = {0, 4, 5, 10, 11, 15, 15, 18, 19, 24, 25, 28, 29, 31, 32, 35, 35, 36};
     List<Span> tokens = IntStream.range(0, bounds.length / 2)
@@ -38,7 +37,7 @@ public class FrogSocketClientTest {
   }
 
   @Test
-  public void testFrogAndOpenNLP() throws IOException, ParsingException {
+  public void testFrogAndOpenNLP() throws Exception {
     String text = "Henk en Gerard zijn namen van personen.";
     List<Span> names = frog.apply(text);
     assertEquals(2, names.size());
@@ -47,17 +46,17 @@ public class FrogSocketClientTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testEmptyToken() throws IOException, ParsingException {
+  public void testEmptyToken() throws Exception {
     frog.apply("", asList(new Span(0, 0)));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testCrossingSpans() throws IOException, ParsingException {
+  public void testCrossingSpans() throws Exception {
     frog.apply("Hallo!", asList(new Span(0, 4), new Span(3, 6)));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testUnsortedSpans() throws IOException, ParsingException {
+  public void testUnsortedSpans() throws Exception {
     frog.apply("Hallo wereld!", asList(new Span(6, 13), new Span(0, 5)));
   }
 }
