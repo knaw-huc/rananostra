@@ -1,6 +1,7 @@
 package nl.knaw.huygens.pergamon;
 
 import opennlp.tools.util.Span;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -23,6 +24,9 @@ public class FrogSocketClientTest {
     frog = new FrogSocketClient("localhost", port);
   }
 
+  private static final String NOSERVER = "needs running Frog server";
+
+  @Ignore(NOSERVER)
   @Test
   public void testFrog() throws Exception {
     String text = "Henk staat aan het begin van de zin.";
@@ -36,6 +40,7 @@ public class FrogSocketClientTest {
     assertEquals("Henk", names.get(0).getCoveredText(text));
   }
 
+  @Ignore(NOSERVER)
   @Test
   public void testFrogAndOpenNLP() throws Exception {
     String text = "Henk en Gerard zijn namen van personen.";
@@ -45,16 +50,19 @@ public class FrogSocketClientTest {
     assertEquals("Gerard", names.get(1).getCoveredText(text));
   }
 
+  @Ignore(NOSERVER)
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyToken() throws Exception {
     frog.apply("", asList(new Span(0, 0)));
   }
 
+  @Ignore(NOSERVER)
   @Test(expected = IllegalArgumentException.class)
   public void testCrossingSpans() throws Exception {
     frog.apply("Hallo!", asList(new Span(0, 4), new Span(3, 6)));
   }
 
+  @Ignore(NOSERVER)
   @Test(expected = IllegalArgumentException.class)
   public void testUnsortedSpans() throws Exception {
     frog.apply("Hallo wereld!", asList(new Span(6, 13), new Span(0, 5)));
