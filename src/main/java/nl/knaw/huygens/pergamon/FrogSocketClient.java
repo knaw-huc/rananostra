@@ -1,12 +1,21 @@
 package nl.knaw.huygens.pergamon;
 
-import nu.xom.*;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Nodes;
+import nu.xom.ParsingException;
+import nu.xom.XPathContext;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -103,13 +112,15 @@ public class FrogSocketClient implements Tagger {
 
     // Record an id->token index mapping to resolve entity spans, which Frog represents
     // by offset annotations.
-    Map<String, Integer> idToIndex = IntStream.range(0, tokenNodes.size()).boxed()
-      .collect(Collectors.toMap(i -> {
-          Element elem = (Element) tokenNodes.get(i);
-          return elem.getAttribute("id", "http://www.w3.org/XML/1998/namespace").getValue();
-        },
-        Function.identity()
-      ));
+    Map<String, Integer> idToIndex =
+      IntStream.range(0, tokenNodes.size()).boxed()
+               .collect(Collectors.toMap(i -> {
+                   Element elem = (Element) tokenNodes.get(i);
+                   return elem.getAttribute("id", "http://www.w3.org/XML/1998/namespace")
+                              .getValue();
+                 },
+                 Function.identity()
+               ));
 
     // A folia:entity contains a list of folia:wref elements pointing back to the tokens, e.g.,
     // <entity xml:id="untitled.p.1.s.1.entities.1.entity.1" class="per" confidence = "0" >

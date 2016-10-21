@@ -31,9 +31,10 @@ public class FrogSocketClientTest {
   public void testFrog() throws Exception {
     String text = "Henk staat aan het begin van de zin.";
     int[] bounds = {0, 4, 5, 10, 11, 15, 15, 18, 19, 24, 25, 28, 29, 31, 32, 35, 35, 36};
-    List<Span> tokens = IntStream.range(0, bounds.length / 2)
-      .mapToObj(i -> new Span(bounds[i * 2], bounds[i * 2 + 1]).trim(text))
-      .collect(Collectors.toList());
+    List<Span> tokens =
+      IntStream.range(0, bounds.length / 2)
+               .mapToObj(i -> new Span(bounds[i * 2], bounds[i * 2 + 1]).trim(text))
+               .collect(Collectors.toList());
 
     List<Span> names = frog.apply(text, tokens);
     assertEquals(1, names.size());
