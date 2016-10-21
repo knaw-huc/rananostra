@@ -68,4 +68,10 @@ public class FrogSocketClientTest {
   public void testUnsortedSpans() throws Exception {
     frog.apply("Hallo wereld!", asList(new Span(6, 13), new Span(0, 5)));
   }
+
+  @Ignore(NOSERVER)
+  @Test(expected = IllegalArgumentException.class)
+  public void testEOTAsToken() throws Exception {
+    frog.apply("Wat is een EOT ?");
+  }
 }

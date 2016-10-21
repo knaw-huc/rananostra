@@ -32,10 +32,16 @@ import static java.util.Arrays.asList;
  * Instances of this class act as clients for a Frog running in TCP server mode
  * producing XML. To start such a server, issue
  * <pre>
- *     frog --skip=mptcla -S port -X
+ *     frog --skip=mptcla -S ${port} -X
  * </pre>
- * where port is some number. The --skip is optional but prevents Frog from wasting
+ * where ${port} is some number. The --skip is optional but prevents Frog from wasting
  * time to produce analyses that we don't use.
+ * <p>
+ * To use the LaMachine Docker image for Frog, issue
+ * <pre>
+ *   docker pull proycon/lamachine
+ *   docker run ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
+ * </pre>
  */
 public class FrogSocketClient implements Tagger {
   private final String host;
@@ -92,10 +98,7 @@ public class FrogSocketClient implements Tagger {
     StringBuilder sb = new StringBuilder();
 
     try (Socket conn = new Socket(host, port)) {
-      Writer w = new OutputStreamWriter(conn.getOutputStream(), utf8);
-      writeTokens(text, tokens, w);
-      w.flush();
-      conn.shutdownOutput();
+      writeTokens(text, tokens, new OutputStreamWriter(conn.getOutputStream(), utf8));
 
       BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), utf8));
 
@@ -127,7 +130,10 @@ public class FrogSocketClient implements Tagger {
     //   <wref id="untitled.p.1.s.1.w.3" t="Ben"/>
     //   <wref id="untitled.p.1.s.1.w.4" t="Hur/>
     // </entity>
-    Nodes entities = doc.query("//folia:entity", foliaCtxt);
+    //
+    // We need the check for @class, because when the MWU detector is not skipped,
+    // Frog produces entities without a class (which are not really named entities).
+    Nodes entities = doc.query("//folia:entity[@class]", foliaCtxt);
     return IntStream.range(0, entities.size()).mapToObj(i -> {
       Element elem = (Element) entities.get(i);
       Nodes wrefs = elem.query(".//folia:wref", foliaCtxt);
@@ -147,10 +153,14 @@ public class FrogSocketClient implements Tagger {
     Span prev = new Span(0, 0);
     for (Span span : tokens) {
       Span trimmed = span.trim(text);
-      if (trimmed.length() == 0) {
+      String token = trimmed.getCoveredText(text).toString();
+
+      if (token.length() == 0) {
         throw new IllegalArgumentException(
           String.format("Empty or all-whitespace token '%s' at %s",
             span.getCoveredText(text).toString(), span.toString()));
+      } else if ("EOT".equals(token)) {
+        throw new IllegalArgumentException("'EOT' not allowed as a token");
       } else if (span.crosses(prev)) {
         throw new IllegalArgumentException(
           String.format("crossing spans %s and %s", prev, span));
@@ -162,5 +172,7 @@ public class FrogSocketClient implements Tagger {
       w.write('\n');
       prev = span;
     }
+    w.write("EOT\n");
+    w.flush();
   }
 }
