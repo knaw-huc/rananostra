@@ -40,7 +40,7 @@ import static java.util.Arrays.asList;
  * To use the LaMachine Docker image for Frog, issue
  * <pre>
  *   docker pull proycon/lamachine
- *   docker run ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
+ *   docker run -p ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
  * </pre>
  */
 public class FrogSocketClient implements Tagger {
