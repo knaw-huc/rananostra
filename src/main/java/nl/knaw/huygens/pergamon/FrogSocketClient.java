@@ -1,5 +1,6 @@
 package nl.knaw.huygens.pergamon;
 
+import nl.knaw.huygens.algomas.concurrent.TransientLazy;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Nodes;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -51,6 +53,14 @@ public class FrogSocketClient implements Tagger {
 
   private static final String foliaNS = "http://ilk.uvt.nl/folia";
 
+  private TransientLazy<TokenizerModel> tokModel = new TransientLazy<>(() -> {
+    try {
+      return new TokenizerModel(FrogSocketClient.class.getResourceAsStream("/nl-token.bin"));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  });
+
   private static final XPathContext foliaCtxt = new XPathContext("folia", foliaNS);
 
   /**
@@ -79,8 +89,9 @@ public class FrogSocketClient implements Tagger {
    * nearly impossible to construct the correct spans.
    */
   public List<Span> apply(String sentence) throws Exception {
-    TokenizerModel tokModel = new TokenizerModel(this.getClass().getResourceAsStream("/nl-token.bin"));
-    Tokenizer tok = new TokenizerME(tokModel);
+    // Tokenizer (unlike TokenizerModel) is stateful, so construct it here.
+    // Its constructor is cheap.
+    Tokenizer tok = new TokenizerME(tokModel.get());
     return apply(sentence, asList(tok.tokenizePos(sentence)));
   }
 

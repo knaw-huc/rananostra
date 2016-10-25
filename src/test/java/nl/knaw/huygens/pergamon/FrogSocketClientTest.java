@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FrogSocketClientTest {
   // These tests need a running Frog TCP server.
@@ -73,5 +74,27 @@ public class FrogSocketClientTest {
   @Test(expected = IllegalArgumentException.class)
   public void testEOTAsToken() throws Exception {
     frog.apply("Wat is een EOT ?");
+  }
+
+  // Assert that we can run apply(String) in parallel.
+  @Ignore(NOSERVER)
+  @Test
+  public void parallel() throws Exception {
+    List<String> list = asList(
+      "Dit is een korte zin.",
+      "Dit is een zin over Henk en Fatima.",
+      "Dit is nog een zin, met de naam van Bert erin.",
+      "Dit is een heel andere zin");
+
+    list.parallelStream().forEach(s -> {
+      try {
+        List<Span> result = frog.apply(s);
+        if (!s.contains("Henk") && !s.contains("Bert")) {
+          assertTrue(result.isEmpty());
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
   }
 }
