@@ -3,8 +3,10 @@ package nl.knaw.huygens.pergamon;
 import nl.knaw.huygens.algomas.concurrent.TransientLazy;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.ParsingException;
+import nu.xom.Text;
 import nu.xom.XPathContext;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -15,11 +17,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Wrapper for the Frog named-entity recognizer.
@@ -121,7 +125,7 @@ public class FrogSocketClient implements Tagger {
       r.close();
     }
 
-    Document doc = new nu.xom.Builder(false).build(new StringReader(sb.toString()));
+    Document doc = XmlParser.fromString(sb.toString());
     Nodes tokenNodes = doc.query("//folia:w", foliaCtxt);
 
     // Record an id->token index mapping to resolve entity spans, which Frog represents
@@ -158,6 +162,149 @@ public class FrogSocketClient implements Tagger {
 
       return new Span(start, end, elem.getAttribute("class").getValue());
     }).collect(Collectors.toList());
+  }
+
+  /**
+   * Add NE annotations to an XML document.
+   * <p>
+   * For each element matching the given XPath query, the string yield is passed to Frog as {@link #apply(String)} does.
+   * The resulting entities are marked in the XML tree by inserting milestone tags with the given start and end types.
+   *
+   * @param xmldoc     Input XML document.
+   * @param xpath      XPath query.
+   * @param namespaces Namespace context for XPath query; maps abbreviations to namespace URIs. Use null for empty
+   *                   context.
+   * @param startTag   Type of start tag, e.g., "startEntity".
+   * @param endTag     Type of end tag, e.g., "endEntity".
+   * @return The modified XML document.
+   */
+  public String applyXML(String xmldoc, String xpath, Map<String, String> namespaces,
+                         String startTag, String endTag) throws Exception {
+    xpath = requireNonNull(xpath);
+    startTag = requireNonNull(startTag);
+    endTag = requireNonNull(endTag);
+
+    Document doc = XmlParser.fromString(xmldoc);
+
+    XPathContext ctx = new XPathContext();
+    if (namespaces != null) {
+      namespaces.forEach(ctx::addNamespace);
+    }
+
+    Nodes nodes = doc.query(xpath, ctx);
+
+    for (int i = 0; i < nodes.size(); i++) {
+      Node node = nodes.get(i);
+      String text = node.getValue();
+      List<Span> spans = apply(text);
+      if (node instanceof Text) {
+        node = node.getParent();
+      }
+      putMilestones((Element) node, spans, startTag, endTag);
+    }
+
+    return doc.toXML();
+  }
+
+  /*
+   * Inserts milestones into the text of elem at the startTag and end positions of the spans.
+   */
+  private void putMilestones(Element elem, List<Span> spans, String startTag, String endTag) {
+    new Traversal(spans, startTag, endTag).traverse(elem);
+  }
+
+  private static class Traversal {
+    private boolean atSpanEnd; // Are we at the end of the current span?
+    private List<Span> spans;
+    private int spanpos; // spans.get(spanpos) is the current span.
+    private int textpos; // Position in XML document's text.
+
+    private final String startTag;
+    private final String endTag;
+
+    private Traversal(List<Span> spans, String startTag, String endTag) {
+      this.spans = spans;
+      this.startTag = startTag;
+      this.endTag = endTag;
+    }
+
+    private List<Node> traverse(Node node) {
+      if (spanpos == spans.size()) {
+        return Collections.singletonList(node);
+      }
+      if (node instanceof Text) {
+        return splitText((Text) node);
+      }
+      if (node instanceof Element) {
+        traverseElement((Element) node);
+      }
+      return Collections.singletonList(node);
+    }
+
+    private void traverseElement(Element elem) {
+      for (int i = 0; i < elem.getChildCount(); ) {
+        Node child = elem.getChild(i);
+        List<Node> newnodes = traverse(child);
+
+        elem.removeChild(i);
+        for (Node newnode : newnodes) {
+          elem.insertChild(newnode, i);
+          i++;
+        }
+      }
+    }
+
+    private List<Node> splitText(Text node) {
+      CharSequence text = new StringSlice(node.getValue());
+
+      List<Node> newnodes = new ArrayList<>();
+      while (true) {
+        int pos = peekSpanPos();
+        if (pos == -1) {
+          break;
+        }
+        pos -= textpos;
+
+        if (pos > text.length()) {
+          textpos += text.length();
+          break;
+        }
+
+        newnodes.add(new Text(text.subSequence(0, pos).toString()));
+        text = text.subSequence(pos, text.length());
+        textpos += pos;
+
+        if (atSpanEnd) {
+          newnodes.add(new Element(endTag));
+        } else {
+          newnodes.add(new Element(startTag));
+        }
+        nextSpanPos();
+      }
+      if (text.length() > 0) {
+        newnodes.add(new Text(text.toString()));
+      }
+      return newnodes;
+    }
+
+    // Increment position in spans.
+    private void nextSpanPos() {
+      if (atSpanEnd) {
+        spanpos++;
+      }
+      atSpanEnd = !atSpanEnd;
+    }
+
+    // Returns the position of the next span start or end.
+    private int peekSpanPos() {
+      if (spanpos == spans.size()) {
+        return -1;
+      } else if (atSpanEnd) {
+        return spans.get(spanpos).getEnd();
+      } else {
+        return spans.get(spanpos).getStart();
+      }
+    }
   }
 
   private void writeTokens(String text, List<Span> tokens, Writer w) throws IOException {

@@ -97,4 +97,27 @@ public class FrogSocketClientTest {
       }
     });
   }
+
+  private String applyXML(String doc) throws Exception {
+    doc = frog.applyXML(doc, "//p", null, "start", "end");
+    // Strip off XML declaration.
+    String[] parts = doc.split("\n");
+    assertEquals(2, parts.length);
+    assertEquals("<?xml version=\"1.0\"?>", parts[0]);
+    doc = parts[1];
+    return doc;
+  }
+
+  @Ignore(NOSERVER)
+  @Test
+  public void xml() throws Exception {
+    String doc = applyXML("<p>Bert <br/>Haanstra</p>");
+    assertEquals("<p><start />Bert <br />Haanstra<end /></p>", doc);
+
+    doc = applyXML("<p>Een film van Bert <br/>Haan<!--comment-->stra.</p>");
+    assertEquals("<p>Een film van <start />Bert <br />Haan<!--comment-->stra<end />.</p>", doc);
+
+    doc = applyXML("<p>Een film van Bert <br/>Haanstra.</p>");
+    assertEquals("<p>Een film van <start />Bert <br />Haanstra<end />.</p>", doc);
+  }
 }
