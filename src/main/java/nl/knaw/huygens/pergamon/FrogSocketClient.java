@@ -49,7 +49,7 @@ import static java.util.Objects.requireNonNull;
  *   docker run -p ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
  * </pre>
  */
-public class FrogSocketClient implements Tagger {
+public class FrogSocketClient {
   private final String host;
   private final int port;
 
@@ -108,7 +108,6 @@ public class FrogSocketClient implements Tagger {
    * @throws IOException
    * @throws ParsingException
    */
-  @Override
   public List<Span> apply(String text, List<Span> tokens) throws Exception {
     StringBuilder sb = new StringBuilder();
 

@@ -50,17 +50,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>edu.stanford.nlp</groupId>
-      <artifactId>stanford-corenlp</artifactId>
-      <version>3.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>edu.stanford.nlp</groupId>
-      <artifactId>stanford-corenlp</artifactId>
-      <version>3.6.0</version>
-      <classifier>models</classifier>
-    </dependency>
-    <dependency>
       <groupId>nl.knaw.huygens.algomas</groupId>
       <artifactId>algomas-core</artifactId>
       <version>1.7.0</version>
