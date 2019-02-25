@@ -53,3 +53,17 @@ Compared to vanilla Frog and its various service wrappers, Rana Nostra:
 * uses the OpenNLP tokenizer instead of Frog's own (Ucto). This is because
   it seems to be impossible to get token indices out of Frog/Ucto, and we
   need those.
+
+
+Legal matters
+-------------
+
+Copyright 2016-2019 Koninklijke Nederlandse Academie van Wetenschappen
+
+Distributed under the terms of the GNU General Public License, version 3.
+See the file COPYING for details.
+
+The file ./src/main/resources/nl-token.bin is taken from [OpenNLP][opennlp],
+which is Copyright 2017 The Apache Software Foundation.
+
+[opennlp]: http://opennlp.sourceforge.net/models-1.5/
