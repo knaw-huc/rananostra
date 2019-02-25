@@ -26,10 +26,9 @@ or, using LaMachine,
 Now build and run Rana Nostra:
 
     mvn clean package
-    target/appassembler/bin/rananostra server
     echo host: localhost > config.yml
     echo port: 9999     >> config.yml
-    mvn clean package && target/appassembler/bin/rananostra server config.yml 
+    target/appassembler/bin/rananostra server config.yml 
 
 Query it:
 
