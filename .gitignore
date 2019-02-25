@@ -5,8 +5,7 @@ target
 
 *.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+config.yml
 
 # Package Files #
 *.jar

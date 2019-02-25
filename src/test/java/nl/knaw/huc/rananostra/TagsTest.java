@@ -1,9 +1,8 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 import opennlp.tools.util.Span;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;

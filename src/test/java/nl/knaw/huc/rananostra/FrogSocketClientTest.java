@@ -1,4 +1,4 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 import opennlp.tools.util.Span;
 import org.junit.Ignore;
@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 
 public class FrogSocketClientTest {
   // These tests need a running Frog TCP server.
-  // TODO start Frog automatically?
   //private static final int port = Integer.parseInt(System.getenv("FROG_PORT"));
   private static final int port = 9999;
 

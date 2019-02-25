@@ -1,4 +1,4 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 /**
  * Constant-memory and constant-time replacement for String.substring.

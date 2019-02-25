@@ -1,14 +1,11 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 import opennlp.tools.util.Span;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import static java.util.Comparator.*;
 import static java.util.Comparator.comparing;
 
 /**

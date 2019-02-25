@@ -4,19 +4,50 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>nl.knaw.huygens.pergamon</groupId>
-  <artifactId>frogclient</artifactId>
+  <groupId>nl.knaw.huc</groupId>
+  <artifactId>rananostra</artifactId>
   <version>1.0</version>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <dropwizard.version>1.2.0</dropwizard.version>
+    <jdk.version>1.8</jdk.version>
+    <maven-appassembler-plugin.version>1.10</maven-appassembler-plugin.version>
+    <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${jdk.version}</source>
+          <target>${jdk.version}</target>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>${maven-appassembler-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+            <configuration>
+              <programs>
+                <program>
+                  <id>rananostra</id>
+                  <mainClass>nl.knaw.huc.rananostra.rest.Server</mainClass>
+                </program>
+              </programs>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 
@@ -43,12 +74,12 @@
     </snapshotRepository>
   </distributionManagement>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jdk.version>1.8</jdk.version>
-  </properties>
-
   <dependencies>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-core</artifactId>
+      <version>${dropwizard.version}</version>
+    </dependency>
     <dependency>
       <groupId>nl.knaw.huygens.algomas</groupId>
       <artifactId>algomas-core</artifactId>

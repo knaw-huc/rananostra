@@ -1,4 +1,4 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 import nl.knaw.huygens.algomas.concurrent.TransientLazy;
 import nu.xom.Document;

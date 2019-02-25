@@ -1,4 +1,4 @@
-package nl.knaw.huygens.pergamon;
+package nl.knaw.huc.rananostra;
 
 import org.junit.Test;
 
