@@ -16,13 +16,13 @@ class TestStringSlice {
   }
 
   private static String slice(String s, int from, int to) {
-    return new StringSlice(s, from, to).toString();
+    return StringSlice.fromTo(s, from, to).toString();
   }
 
   @Test
   void subSequence() {
     String s = "hello_world";
-    CharSequence sub = new StringSlice(s, 0, 6);
+    CharSequence sub = StringSlice.fromTo(s, 0, 6);
     sub = sub.subSequence(5, 6);
     assertEquals("_", sub.toString());
     sub = sub.subSequence(0, 0);
@@ -32,8 +32,8 @@ class TestStringSlice {
   @Test
   void outOfBounds() {
     assertThrows(IndexOutOfBoundsException.class, () ->
-      new StringSlice("", 1, 1));
+      StringSlice.fromTo("", 1, 1));
     assertThrows(IndexOutOfBoundsException.class, () ->
-      new StringSlice("foobar", 1, 1).subSequence(2, 3));
+      StringSlice.fromTo("foobar", 1, 1).subSequence(2, 3));
   }
 }

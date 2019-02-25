@@ -11,20 +11,19 @@ final class StringSlice implements CharSequence {
   private final int offset;
   private final int len;
 
-  public StringSlice(String s) {
-    this(s, 0, s.length());
+  public static StringSlice of(String str) {
+    return fromTo(str, 0, str.length());
   }
 
-  public StringSlice(String s, int from, int to) {
-    this(from, to, s);
-    check(from, to, s);
+  public static StringSlice fromTo(String str, int from, int to) {
+    check(from, to, str);
+    return new StringSlice(str, from, to - from);
   }
 
-  // No-check constructor. Arguments swapped to change the signature.
-  private StringSlice(int from, int to, String str) {
+  private StringSlice(String str, int offset, int len) {
     this.str = str;
-    offset = from;
-    len = to - from;
+    this.offset = offset;
+    this.len = len;
   }
 
   @Override
@@ -46,7 +45,7 @@ final class StringSlice implements CharSequence {
   @Override
   public final CharSequence subSequence(int from, int to) {
     check(from, to, this);
-    return new StringSlice(offset + from, offset + to, str);
+    return new StringSlice(str, from, to - from);
   }
 
   public final String toString() {
