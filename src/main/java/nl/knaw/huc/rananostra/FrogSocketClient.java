@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
@@ -52,8 +52,6 @@ import static java.util.Objects.requireNonNull;
 public class FrogSocketClient {
   private final String host;
   private final int port;
-
-  private static final Charset utf8 = Charset.forName("UTF-8");
 
   private static final String foliaNS = "http://ilk.uvt.nl/folia";
 
@@ -112,9 +110,9 @@ public class FrogSocketClient {
     StringBuilder sb = new StringBuilder();
 
     try (Socket conn = new Socket(host, port)) {
-      writeTokens(text, tokens, new OutputStreamWriter(conn.getOutputStream(), utf8));
+      writeTokens(text, tokens, new OutputStreamWriter(conn.getOutputStream(), UTF_8));
 
-      BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), utf8));
+      BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), UTF_8));
 
       // Frog output is: an XML document, followed by "READY" on a line by itself, repeated
       // ad infinitum.
