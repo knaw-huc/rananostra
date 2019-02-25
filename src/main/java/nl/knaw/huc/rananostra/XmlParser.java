@@ -15,13 +15,7 @@ final class XmlParser {
     throw new AssertionError("Class cannot be instantiated, static use only.");
   }
 
-  private static final ThreadLocal<Builder> BUILDER =
-    new ThreadLocal<Builder>() {
-      @Override
-      protected Builder initialValue() {
-        return new Builder();
-      }
-    };
+  private static final ThreadLocal<Builder> BUILDER = ThreadLocal.withInitial(Builder::new);
 
   static Document fromString(String s) throws IOException, ParsingException {
     return BUILDER.get().build(new StringReader(s));
