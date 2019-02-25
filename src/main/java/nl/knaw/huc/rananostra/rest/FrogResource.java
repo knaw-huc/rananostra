@@ -2,7 +2,6 @@ package nl.knaw.huc.rananostra.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import nl.knaw.huc.rananostra.FrogSocketClient;
-import nu.xom.Builder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.ws.rs.Consumes;
@@ -16,7 +15,6 @@ import java.util.Map;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 public class FrogResource {
-  private final Builder xomBuilder = new Builder(false);
   private final FrogSocketClient frog;
 
   public FrogResource(String host, int port) {
