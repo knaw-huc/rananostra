@@ -1,12 +1,13 @@
 package nl.knaw.huc.rananostra;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestStringSlice {
+class TestStringSlice {
   @Test
-  public void sliceString() {
+  void sliceString() {
     String s = "abbcccdddd";
     assertEquals("a", slice(s, 0, 1));
     assertEquals("bb", slice(s, 1, 3));
@@ -19,7 +20,7 @@ public class TestStringSlice {
   }
 
   @Test
-  public void subSequence() {
+  void subSequence() {
     String s = "hello_world";
     CharSequence sub = new StringSlice(s, 0, 6);
     sub = sub.subSequence(5, 6);
@@ -28,13 +29,11 @@ public class TestStringSlice {
     assertEquals("", sub.toString());
   }
 
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void ofEmpty() {
-    new StringSlice("", 1, 1);
-  }
-
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void ofShortSlice() {
-    new StringSlice("foobar", 1, 1).subSequence(2, 3);
+  @Test
+  void outOfBounds() {
+    assertThrows(IndexOutOfBoundsException.class, () ->
+      new StringSlice("", 1, 1));
+    assertThrows(IndexOutOfBoundsException.class, () ->
+      new StringSlice("foobar", 1, 1).subSequence(2, 3));
   }
 }

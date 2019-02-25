@@ -1,34 +1,34 @@
 package nl.knaw.huc.rananostra;
 
 import opennlp.tools.util.Span;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FrogSocketClientTest {
+class FrogSocketClientTest {
   // These tests need a running Frog TCP server.
   //private static final int port = Integer.parseInt(System.getenv("FROG_PORT"));
   private static final int port = 9999;
 
   private final FrogSocketClient frog;
 
-  public FrogSocketClientTest() throws IOException {
+  FrogSocketClientTest() {
     frog = new FrogSocketClient("localhost", port);
   }
 
   private static final String NOSERVER = "needs running Frog server";
 
-  @Ignore(NOSERVER)
+  @Disabled(NOSERVER)
   @Test
-  public void testFrog() throws Exception {
+  void testFrog() throws Exception {
     String text = "Henk staat aan het begin van de zin.";
     int[] bounds = {0, 4, 5, 10, 11, 15, 15, 18, 19, 24, 25, 28, 29, 31, 32, 35, 35, 36};
     List<Span> tokens =
@@ -41,9 +41,9 @@ public class FrogSocketClientTest {
     assertEquals("Henk", names.get(0).getCoveredText(text));
   }
 
-  @Ignore(NOSERVER)
+  @Disabled(NOSERVER)
   @Test
-  public void testFrogAndOpenNLP() throws Exception {
+  void testFrogAndOpenNLP() throws Exception {
     String text = "Henk en Gerard zijn namen van personen.";
     List<Span> names = frog.apply(text);
     assertEquals(2, names.size());
@@ -51,34 +51,30 @@ public class FrogSocketClientTest {
     assertEquals("Gerard", names.get(1).getCoveredText(text));
   }
 
-  @Ignore(NOSERVER)
-  @Test(expected = IllegalArgumentException.class)
-  public void testEmptyToken() throws Exception {
-    frog.apply("", asList(new Span(0, 0)));
-  }
+  @Disabled(NOSERVER)
+  @Test
+  void testInvalidInput() {
+    // Empty token.
+    assertThrows(IllegalArgumentException.class, () ->
+      frog.apply("", asList(new Span(0, 0))));
 
-  @Ignore(NOSERVER)
-  @Test(expected = IllegalArgumentException.class)
-  public void testCrossingSpans() throws Exception {
-    frog.apply("Hallo!", asList(new Span(0, 4), new Span(3, 6)));
-  }
+    // Crossing spans.
+    assertThrows(IllegalArgumentException.class, () ->
+      frog.apply("Hallo!", asList(new Span(0, 4), new Span(3, 6))));
 
-  @Ignore(NOSERVER)
-  @Test(expected = IllegalArgumentException.class)
-  public void testUnsortedSpans() throws Exception {
-    frog.apply("Hallo wereld!", asList(new Span(6, 13), new Span(0, 5)));
-  }
+    // Unsorted spans.
+    assertThrows(IllegalArgumentException.class, () ->
+      frog.apply("Hallo wereld!", asList(new Span(6, 13), new Span(0, 5))));
 
-  @Ignore(NOSERVER)
-  @Test(expected = IllegalArgumentException.class)
-  public void testEOTAsToken() throws Exception {
-    frog.apply("Wat is een EOT ?");
+    // EOT as token.
+    assertThrows(IllegalArgumentException.class, () ->
+      frog.apply("Wat is een EOT ?"));
   }
 
   // Assert that we can run apply(String) in parallel.
-  @Ignore(NOSERVER)
+  @Disabled(NOSERVER)
   @Test
-  public void parallel() throws Exception {
+  void parallel() throws Exception {
     List<String> list = asList(
       "Dit is een korte zin.",
       "Dit is een zin over Henk en Fatima.",
@@ -107,9 +103,9 @@ public class FrogSocketClientTest {
     return doc;
   }
 
-  @Ignore(NOSERVER)
+  @Disabled(NOSERVER)
   @Test
-  public void xml() throws Exception {
+  void xml() throws Exception {
     String doc = applyXML("<p>Bert <br/>Haanstra</p>");
     assertEquals("<p><start />Bert <br />Haanstra<end /></p>", doc);
 
