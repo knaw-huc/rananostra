@@ -252,7 +252,7 @@ public class FrogSocketClient {
     }
 
     private List<Node> splitText(Text node) {
-      CharSequence text = new StringSlice(node.getValue());
+      CharSequence text = StringSlice.of(node.getValue());
 
       List<Node> newnodes = new ArrayList<>();
       while (true) {
