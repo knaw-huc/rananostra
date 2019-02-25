@@ -1,6 +1,5 @@
 package nl.knaw.huc.rananostra;
 
-
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.ParsingException;
