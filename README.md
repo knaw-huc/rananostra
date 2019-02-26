@@ -54,6 +54,15 @@ Compared to vanilla Frog and its various service wrappers, Rana Nostra:
   need those.
 
 
+Testing
+-------
+
+To run the unit tests, make sure you have Frog available through a port on
+localhost and set the environment variable `RANA_TEST_PORT`:
+
+    RANA_TEST_PORT=9999 mvn clean test
+
+
 Legal matters
 -------------
 

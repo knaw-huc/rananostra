@@ -1,8 +1,8 @@
 package nl.knaw.huc.rananostra;
 
 import opennlp.tools.util.Span;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,20 +13,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// These tests need a running Frog TCP server on localhost.
+// Configure one with the environment variables RANA_TEST_PORT.
+@EnabledIfEnvironmentVariable(named = "RANA_TEST_PORT", matches = "[0-9]+")
 class FrogSocketClientTest {
-  // These tests need a running Frog TCP server.
-  //private static final int port = Integer.parseInt(System.getenv("FROG_PORT"));
-  private static final int port = 9999;
-
   private final FrogSocketClient frog;
 
   FrogSocketClientTest() {
+    int port = Integer.parseInt(System.getenv("RANA_TEST_PORT"));
     frog = new FrogSocketClient("localhost", port);
   }
 
-  private static final String NOSERVER = "needs running Frog server";
-
-  @Disabled(NOSERVER)
   @Test
   void testFrog() throws Exception {
     String text = "Henk staat aan het begin van de zin.";
@@ -41,7 +38,6 @@ class FrogSocketClientTest {
     assertEquals("Henk", names.get(0).getCoveredText(text));
   }
 
-  @Disabled(NOSERVER)
   @Test
   void testFrogAndOpenNLP() throws Exception {
     String text = "Henk en Gerard zijn namen van personen.";
@@ -51,7 +47,6 @@ class FrogSocketClientTest {
     assertEquals("Gerard", names.get(1).getCoveredText(text));
   }
 
-  @Disabled(NOSERVER)
   @Test
   void testInvalidInput() {
     // Empty token.
@@ -72,7 +67,6 @@ class FrogSocketClientTest {
   }
 
   // Assert that we can run apply(String) in parallel.
-  @Disabled(NOSERVER)
   @Test
   void parallel() throws Exception {
     List<String> list = asList(
@@ -103,7 +97,6 @@ class FrogSocketClientTest {
     return doc;
   }
 
-  @Disabled(NOSERVER)
   @Test
   void xml() throws Exception {
     String doc = applyXML("<p>Bert <br/>Haanstra</p>");
