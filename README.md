@@ -11,6 +11,26 @@ the entity annotations to the XML while retaining the XML structure.
 Getting started
 ---------------
 
+Build and start using Docker:
+
+    container=$(docker build -q -f docker/Dockerfile .)
+    docker run -p 8080:8080 $container
+
+Query it:
+
+    curl -H "Content-type: application/json" -XPOST http://localhost:8080/xml \
+        -d '{"xml": "<p>Hallo, Henk!</p>", "xpath": "/p",
+             "starttag": "start", "endtag": "end"}'
+
+You should get the response
+
+    <?xml version="1.0"?>
+    <p>Hallo, <start />Henk<end />!</p>
+
+
+Developing
+----------
+
 Make sure you have Frog running in server mode. Pick some unused port number,
 say, 9999, then run Frog using either
 
@@ -30,16 +50,11 @@ Now build and run Rana Nostra:
     echo port: 9999     >> config.yml
     target/appassembler/bin/rananostra server config.yml 
 
-Query it:
+To run the unit tests, make sure you have Frog available through a port on
+localhost and set the environment variable `RANA_TEST_PORT`:
 
-    curl -H "Content-type: application/json" -XPOST http://localhost:8080/xml \
-        -d '{"xml": "<p>Hallo, Henk!</p>", "xpath": "/p",
-             "starttag": "start", "endtag": "end"}'
+    RANA_TEST_PORT=9999 mvn clean test
 
-You should get the response
-
-    <?xml version="1.0"?>
-    <p>Hallo, <start />Henk<end />!</p>
 
 
 Differences with Frog, CLAM, LaMachine, etc.
@@ -52,15 +67,6 @@ Compared to vanilla Frog and its various service wrappers, Rana Nostra:
 * uses the OpenNLP tokenizer instead of Frog's own (Ucto). This is because
   it seems to be impossible to get token indices out of Frog/Ucto, and we
   need those.
-
-
-Testing
--------
-
-To run the unit tests, make sure you have Frog available through a port on
-localhost and set the environment variable `RANA_TEST_PORT`:
-
-    RANA_TEST_PORT=9999 mvn clean test
 
 
 Legal matters
