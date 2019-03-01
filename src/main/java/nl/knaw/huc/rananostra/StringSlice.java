@@ -45,7 +45,7 @@ final class StringSlice implements CharSequence {
   @Override
   public final CharSequence subSequence(int from, int to) {
     check(from, to, this);
-    return new StringSlice(str, from, to - from);
+    return new StringSlice(str, offset + from, to - from);
   }
 
   public final String toString() {

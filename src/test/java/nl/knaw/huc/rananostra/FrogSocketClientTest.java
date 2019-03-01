@@ -108,5 +108,8 @@ class FrogSocketClientTest {
 
     doc = applyXML("<p>Een film van Bert <br/>Haanstra.</p>");
     assertEquals("<p>Een film van <start class=\"per\" />Bert <br />Haanstra<end />.</p>", doc);
+
+    doc = applyXML("<p>Hallo, Henk!</p>");
+    assertEquals("<p>Hallo, <start class=\"per\" />Henk<end />!</p>", doc);
   }
 }
