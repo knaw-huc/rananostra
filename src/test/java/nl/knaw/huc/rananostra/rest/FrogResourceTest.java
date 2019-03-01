@@ -24,14 +24,14 @@ class FrogResourceTest {
       args.xml = "";
       resource.applyXML(args);
     });
-    assertEquals(BAD_REQUEST, e.getResponse().getStatus());
+    assertEquals(BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
 
     assertThrows(WebApplicationException.class, () -> {
       FrogResource.Args args = copy(working);
       args.xpath = "";
       resource.applyXML(args);
     });
-    assertEquals(BAD_REQUEST, e.getResponse().getStatus());
+    assertEquals(BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
   }
 
   private FrogResource.Args copy(FrogResource.Args args) {
