@@ -1,6 +1,9 @@
 package nl.knaw.huc.rananostra;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import nl.knaw.huygens.algomas.concurrent.TransientLazy;
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -12,6 +15,7 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -161,34 +165,69 @@ public class FrogSocketClient {
     }).collect(Collectors.toList());
   }
 
+  public static class XMLOptions {
+    @JsonProperty
+    @NotEmpty
+    public String xml;
+
+    @JsonProperty
+    @NotEmpty
+    public String xpath;
+
+    @JsonProperty
+    public Map<String, String> namespaces;
+
+    @JsonProperty("starttag")
+    @NotEmpty
+    public String startTag;
+
+    @JsonProperty("endtag")
+    @NotEmpty
+    public String endTag;
+
+    @JsonProperty("classAttr")
+    public String classAttr;
+
+    public XMLOptions() {
+    }
+
+    public XMLOptions(String xml, String xpath, Map<String, String> namespaces, String startTag,
+                      String endTag, String classAttr) {
+      this.xml = requireNonNull(xml);
+      this.xpath = requireNonNull(xpath);
+      this.namespaces = namespaces;
+      this.startTag = startTag;
+      this.endTag = endTag;
+      this.classAttr = classAttr;
+    }
+
+    public XMLOptions(XMLOptions other) {
+      this.xml = other.xml;
+      this.xpath = other.xpath;
+      this.namespaces = other.namespaces;
+      this.startTag = other.startTag;
+      this.endTag = other.endTag;
+      this.classAttr = other.classAttr;
+    }
+  }
+
   /**
    * Add NE annotations to an XML document.
    * <p>
    * For each element matching the given XPath query, the string yield is passed to Frog as {@link #apply(String)} does.
    * The resulting entities are marked in the XML tree by inserting milestone tags with the given start and end types.
    *
-   * @param xmldoc     Input XML document.
-   * @param xpath      XPath query.
-   * @param namespaces Namespace context for XPath query; maps abbreviations to namespace URIs. Use null for empty
-   *                   context.
-   * @param startTag   Type of start tag, e.g., "startEntity".
-   * @param endTag     Type of end tag, e.g., "endEntity".
    * @return The modified XML document.
    */
-  public String applyXML(String xmldoc, String xpath, Map<String, String> namespaces,
-                         String startTag, String endTag) throws Exception {
-    xpath = requireNonNull(xpath);
-    startTag = requireNonNull(startTag);
-    endTag = requireNonNull(endTag);
-
-    Document doc = XmlParser.fromString(xmldoc);
+  public String applyXML(XMLOptions options) throws Exception {
+    Document doc = XmlParser.fromString(options.xml);
 
     XPathContext ctx = new XPathContext();
-    if (namespaces != null) {
-      namespaces.forEach(ctx::addNamespace);
+    if (options.namespaces != null) {
+      options.namespaces.forEach(ctx::addNamespace);
     }
 
-    Nodes nodes = doc.query(xpath, ctx);
+    Nodes nodes = doc.query(options.xpath, ctx);
 
     for (int i = 0; i < nodes.size(); i++) {
       Node node = nodes.get(i);
@@ -197,7 +236,7 @@ public class FrogSocketClient {
       if (node instanceof Text) {
         node = node.getParent();
       }
-      putMilestones((Element) node, spans, startTag, endTag);
+      new PutMilestones(options, spans).traverse(node);
     }
 
     return doc.toXML();
@@ -206,23 +245,17 @@ public class FrogSocketClient {
   /*
    * Inserts milestones into the text of elem at the startTag and end positions of the spans.
    */
-  private void putMilestones(Element elem, List<Span> spans, String startTag, String endTag) {
-    new Traversal(spans, startTag, endTag).traverse(elem);
-  }
-
-  private static class Traversal {
+  private static class PutMilestones {
     private boolean atSpanEnd; // Are we at the end of the current span?
     private List<Span> spans;
     private int spanpos; // spans.get(spanpos) is the current span.
     private int textpos; // Position in XML document's text.
 
-    private final String startTag;
-    private final String endTag;
+    private final XMLOptions options;
 
-    private Traversal(List<Span> spans, String startTag, String endTag) {
+    private PutMilestones(XMLOptions options, List<Span> spans) {
+      this.options = options;
       this.spans = spans;
-      this.startTag = startTag;
-      this.endTag = endTag;
     }
 
     private List<Node> traverse(Node node) {
@@ -272,9 +305,13 @@ public class FrogSocketClient {
         textpos += pos;
 
         if (atSpanEnd) {
-          newnodes.add(new Element(endTag));
+          newnodes.add(new Element(options.endTag));
         } else {
-          newnodes.add(new Element(startTag));
+          Element elem = new Element(options.startTag);
+          if (!Strings.isNullOrEmpty(options.classAttr)) {
+            elem.addAttribute(new Attribute(options.classAttr, spans.get(spanpos).getType()));
+          }
+          newnodes.add(elem);
         }
         nextSpanPos();
       }

@@ -1,5 +1,6 @@
 package nl.knaw.huc.rananostra.rest;
 
+import nl.knaw.huc.rananostra.FrogSocketClient;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.WebApplicationException;
@@ -13,34 +14,20 @@ class FrogResourceTest {
   void xmlInputValidation() {
     FrogResource resource = new FrogResource("", 12345); // host and port not used
 
-    FrogResource.Args working = new FrogResource.Args();
-    working.xml = "<p/>";
-    working.xpath = "//p";
-    working.starttag = "start";
-    working.endtag = "end";
+    FrogSocketClient.XMLOptions working = new FrogSocketClient.XMLOptions("<p/>", "//p", null, "start", "end", null);
 
     WebApplicationException e = assertThrows(WebApplicationException.class, () -> {
-      FrogResource.Args args = copy(working);
+      FrogSocketClient.XMLOptions args = new FrogSocketClient.XMLOptions(working);
       args.xml = "";
       resource.applyXML(args);
     });
     assertEquals(BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
 
     assertThrows(WebApplicationException.class, () -> {
-      FrogResource.Args args = copy(working);
+      FrogSocketClient.XMLOptions args = new FrogSocketClient.XMLOptions(working);
       args.xpath = "";
       resource.applyXML(args);
     });
     assertEquals(BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
-  }
-
-  private FrogResource.Args copy(FrogResource.Args args) {
-    FrogResource.Args copy = new FrogResource.Args();
-    copy.endtag = args.endtag;
-    copy.namespaces = args.namespaces;
-    copy.starttag = args.starttag;
-    copy.xml = args.xml;
-    copy.xpath = args.xpath;
-    return copy;
   }
 }
