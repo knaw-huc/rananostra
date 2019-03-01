@@ -20,12 +20,12 @@ Query it:
 
     curl -H "Content-type: application/json" -XPOST http://localhost:8080/xml \
         -d '{"xml": "<p>Hallo, Henk!</p>", "xpath": "/p",
-             "starttag": "start", "endtag": "end"}'
+             "starttag": "start", "endtag": "end", "classattr": "type"}'
 
 You should get the response
 
     <?xml version="1.0"?>
-    <p>Hallo, <start />Henk<end />!</p>
+    <p>Hallo, <start type="per" />Henk<end />!</p>
 
 
 Developing

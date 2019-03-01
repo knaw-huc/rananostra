@@ -185,7 +185,7 @@ public class FrogSocketClient {
     @NotEmpty
     public String endTag;
 
-    @JsonProperty("classAttr")
+    @JsonProperty("classattr")
     public String classAttr;
 
     public XMLOptions() {
