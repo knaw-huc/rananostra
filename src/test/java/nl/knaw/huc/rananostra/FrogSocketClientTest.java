@@ -89,7 +89,7 @@ class FrogSocketClientTest {
 
   private String applyXML(String doc) throws Exception {
     doc = frog.applyXML(new FrogSocketClient.XMLOptions(
-      doc, "//p", null, "start", "end", "class"));
+      doc, "//p", null, "start", "end", "class", "text"));
     // Strip off XML declaration.
     String[] parts = doc.split("\n");
     assertEquals(2, parts.length);
@@ -101,15 +101,19 @@ class FrogSocketClientTest {
   @Test
   void xml() throws Exception {
     String doc = applyXML("<p>Bert <br/>Haanstra</p>");
-    assertEquals("<p><start class=\"per\" />Bert <br />Haanstra<end /></p>", doc);
+    assertEquals("<p><start class=\"per\" text=\"Bert Haanstra\" />Bert <br />Haanstra<end /></p>", doc);
 
     doc = applyXML("<p>Een film van Bert <br/>Haan<!--comment-->stra.</p>");
-    assertEquals("<p>Een film van <start class=\"per\" />Bert <br />Haan<!--comment-->stra<end />.</p>", doc);
+    assertEquals(
+      "<p>Een film van <start class=\"per\" text=\"Bert Haanstra\" />Bert <br />Haan<!--comment-->stra<end />.</p>",
+      doc);
 
     doc = applyXML("<p>Een film van Bert <br/>Haanstra.</p>");
-    assertEquals("<p>Een film van <start class=\"per\" />Bert <br />Haanstra<end />.</p>", doc);
+    assertEquals(
+      "<p>Een film van <start class=\"per\" text=\"Bert Haanstra\" />Bert <br />Haanstra<end />.</p>",
+      doc);
 
     doc = applyXML("<p>Hallo, Henk!</p>");
-    assertEquals("<p>Hallo, <start class=\"per\" />Henk<end />!</p>", doc);
+    assertEquals("<p>Hallo, <start class=\"per\" text=\"Henk\" />Henk<end />!</p>", doc);
   }
 }

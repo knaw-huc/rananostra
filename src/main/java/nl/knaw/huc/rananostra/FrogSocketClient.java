@@ -188,17 +188,21 @@ public class FrogSocketClient {
     @JsonProperty("classattr")
     public String classAttr;
 
+    @JsonProperty("textattr")
+    public String textAttr;
+
     public XMLOptions() {
     }
 
     public XMLOptions(String xml, String xpath, Map<String, String> namespaces, String startTag,
-                      String endTag, String classAttr) {
+                      String endTag, String classAttr, String textAttr) {
       this.xml = requireNonNull(xml);
       this.xpath = requireNonNull(xpath);
       this.namespaces = namespaces;
       this.startTag = startTag;
       this.endTag = endTag;
       this.classAttr = classAttr;
+      this.textAttr = textAttr;
     }
 
     public XMLOptions(XMLOptions other) {
@@ -247,6 +251,7 @@ public class FrogSocketClient {
    */
   private static class PutMilestones {
     private boolean atSpanEnd; // Are we at the end of the current span?
+    private String fulltext;
     private List<Span> spans;
     private int spanpos; // spans.get(spanpos) is the current span.
     private int textpos; // Position in XML document's text.
@@ -258,7 +263,15 @@ public class FrogSocketClient {
       this.spans = spans;
     }
 
+    // "Public" entrypoint. Calls traverseNode after some housekeeping.
     private List<Node> traverse(Node node) {
+      if (!Strings.isNullOrEmpty(options.textAttr)) {
+        fulltext = node.getValue();
+      }
+      return traverseNode(node);
+    }
+
+    private List<Node> traverseNode(Node node) {
       if (spanpos == spans.size()) {
         return Collections.singletonList(node);
       }
@@ -274,7 +287,7 @@ public class FrogSocketClient {
     private void traverseElement(Element elem) {
       for (int i = 0; i < elem.getChildCount(); ) {
         Node child = elem.getChild(i);
-        List<Node> newnodes = traverse(child);
+        List<Node> newnodes = traverseNode(child);
 
         elem.removeChild(i);
         for (Node newnode : newnodes) {
@@ -310,6 +323,9 @@ public class FrogSocketClient {
           Element elem = new Element(options.startTag);
           if (!Strings.isNullOrEmpty(options.classAttr)) {
             elem.addAttribute(new Attribute(options.classAttr, spans.get(spanpos).getType()));
+          }
+          if (!Strings.isNullOrEmpty(options.textAttr)) {
+            elem.addAttribute(new Attribute(options.textAttr, spans.get(spanpos).getCoveredText(fulltext).toString()));
           }
           newnodes.add(elem);
         }

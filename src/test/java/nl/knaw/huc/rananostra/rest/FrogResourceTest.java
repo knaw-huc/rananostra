@@ -14,7 +14,7 @@ class FrogResourceTest {
   void xmlInputValidation() {
     FrogResource resource = new FrogResource("", 12345); // host and port not used
 
-    FrogSocketClient.XMLOptions working = new FrogSocketClient.XMLOptions("<p/>", "//p", null, "start", "end", null);
+    FrogSocketClient.XMLOptions working = new FrogSocketClient.XMLOptions("<p/>", "//p", null, "start", "end", null, null);
 
     WebApplicationException e = assertThrows(WebApplicationException.class, () -> {
       FrogSocketClient.XMLOptions args = new FrogSocketClient.XMLOptions(working);
