@@ -28,6 +28,18 @@ You should get the response
     <?xml version="1.0"?>
     <p>Hallo, <start type="per" text="Henk" />Henk<end />!</p>
 
+For a more challenging example, try:
+
+    curl -H "Content-type: application/json" -XPOST http://localhost:8080/xml \
+        -d '{"xml": "<p>Hallo, Rana <lang l=\"latin\">Nostra!</lang></p>",
+             "xpath": "/p", "starttag": "start", "endtag": "end", "classattr": "type"}'
+
+This example shows why the entity annotations are stored as pairs of milestones
+instead of regular XML elements.
+
+(Frog may tell you that Rana Nostra is a person, but that is its assessment,
+not ours.)
+
 
 Developing
 ----------
