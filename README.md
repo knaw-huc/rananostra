@@ -14,7 +14,7 @@ Getting started
 Build and start using Docker:
 
     container=$(docker build -q -f docker/Dockerfile .)
-    docker run -p 8080:8080 $container
+    docker run -t -p 8080:8080 $container
 
 Query it:
 
@@ -54,7 +54,7 @@ or, using LaMachine,
 
     port=9999
     docker pull proycon/lamachine
-    docker run -p ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
+    docker run -t -p ${port}:9999 proycon/lamachine frog --skip=mptcla -S 9999 -X
 
 Now build and run Rana Nostra:
 
