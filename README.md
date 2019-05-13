@@ -13,8 +13,8 @@ Getting started
 
 Build and start using Docker:
 
-    container=$(docker build -q -f docker/Dockerfile .)
-    docker run -t -p 8080:8080 $container
+    docker build -t rananostra -f docker/Dockerfile .
+    docker run -t -p 8080:8080 rananostra
 
 Query it:
 
