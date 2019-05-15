@@ -1,0 +1,9 @@
+73a6b0327d1c14b59ec9e790ef5d5e60dd40b0fb740bf131ee4228565721bd11 https://github.com/LanguageMachines/ticcutils/releases/download/v0.21/ticcutils-0.21.tar.gz
+890708e857810a3ffcfcf6eb0a577f1e92418f9f656f3c4924291a459b36a833 https://github.com/LanguageMachines/libfolia/releases/download/v1.16/libfolia-1.16.tar.gz
+dd061be524eaf1076b1aa98e64f293537cb7d75220d996bda96d7b1a7577d388 https://github.com/LanguageMachines/uctodata/releases/download/v0.8/uctodata-0.8.tar.gz
+af37e1a1c5f6d907336fe4acb243f52293c881928c6336750083157ca48f923c https://github.com/LanguageMachines/ucto/releases/download/v0.14.1/ucto-0.14.1.tar.gz
+e1a136e0f58486e1e2855b6ca528877d40d8b1e5de3c599a314ed6951d7c9e4b https://github.com/LanguageMachines/timbl/releases/download/v6.4.13/timbl-6.4.13.tar.gz
+f3826df4a5f38b2530d6f429aa0460b0923d80014828238406cd5282cd3b0436 https://github.com/LanguageMachines/timblserver/releases/download/v1.12/timblserver-1.12.tar.gz
+e6a130f2a1db60a3ab2d2942cbf79b7695383eb8b31ff3f1cc3c60201d074c48 https://github.com/LanguageMachines/mbt/releases/download/v3.4/mbt-3.4.tar.gz
+999994bf39a19b1c32f360a0b15d833a3c3c9bc061812a388043d5bc3665e018 https://github.com/LanguageMachines/frogdata/releases/download/v0.16/frogdata-0.16.tar.gz
+c5d606f4f2b019bdff9179fd5e7e6e15c9b9da0f390fdf21d65bbed9f345b067 https://github.com/LanguageMachines/frog/releases/download/v0.15/frog-0.15.tar.gz
