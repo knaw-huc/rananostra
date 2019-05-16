@@ -1,4 +1,4 @@
-FROM maven:3.3-jdk-8-alpine as javabuild
+FROM maven:3.3-jdk-8-alpine as build
 
 WORKDIR /build
 
@@ -8,35 +8,21 @@ COPY src/test src/test
 
 RUN mvn clean package
 
+# We derive the final image from Debian with Frog installed to save us the
+# trouble of establishing a shared port between two containers.
+#
+# Replace this with an OpenJDK base image once one using Debian buster has
+# been released. Only buster has Frog 0.15.
+FROM debian:buster-slim
 
-# We build Frog from source so that we can disable its multithreading (OpenMP)
-# entirely. It seems like Frog does not always keep to its promise of not
-# multi-threading in server mode, causing multiple spawned Frog processes to
-# compete for CPU time and memory.
-FROM debian:stretch-slim as frogbuild
-
+# mkdir: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863199
 RUN apt-get update && \
-    apt-get -y install \
-        g++ libboost-regex-dev libbz2-dev libexttextcat-dev libicu-dev \
-        libtar-dev libtool libxml2-dev make pkg-config wget zlib1g-dev
-
-WORKDIR /build
-COPY docker/download.sh .
-COPY docker/downloads.txt .
-RUN ./download.sh
-COPY docker/build.sh .
-RUN ./build.sh
-
-
-FROM openjdk:8-jre-slim-stretch
-
-RUN apt-get update && \
-    apt-get -y install libboost-regex1.62.0 libexttextcat-2.0-0 libtar0 libxml2 && \
+    mkdir -p /usr/share/man/man1 && \
+    apt-get -y install frog frogdata openjdk-8-jre-headless && \
     rm -rf /var/lib/apt/lists
 
 WORKDIR /opt/rananostra
-COPY --from=javabuild /build/target/appassembler/ .
-COPY --from=frogbuild /usr/local /usr/local
+COPY --from=build /build/target/appassembler/ .
 COPY docker docker
 
 EXPOSE 8080 8081

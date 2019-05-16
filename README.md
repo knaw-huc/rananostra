@@ -13,7 +13,7 @@ Getting started
 
 Build and start using Docker:
 
-    docker build -t rananostra .
+    docker build -t rananostra -f docker/Dockerfile .
     docker run -t -p 8080:8080 rananostra
 
 Query it:
